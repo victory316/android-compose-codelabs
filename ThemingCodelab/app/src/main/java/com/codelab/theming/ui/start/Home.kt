@@ -27,16 +27,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Card
-import androidx.compose.material.Divider
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.ListItem
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.runtime.Composable
@@ -49,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codelab.theming.R
@@ -59,6 +51,14 @@ import java.util.Locale
 
 @Composable
 fun Home() {
+
+    // NOTE : 같은 Composable 상에 정의된 컨텐츠 컬러를 아래와 같이 가져와 적용할 수 있음.
+    // Modifier보단 Surface를 사용할 것 (그래야 다른 컴포넌트에서 올바르게 색상값을 참조할 수 있음)
+//    BottomNavigationItem(
+//        unselectedContentColor = LocalContentColor.current ...
+
+    // NOTE : Hardcoded string보다는 테마 기반의 색상을 사용하는 것을 특히 권장
+//    val derivedColor = MaterialTheme.colors.onSurface.copy(alpha = 0.1f)
     val featured = remember { PostRepo.getFeaturedPost() }
     val posts = remember { PostRepo.getPosts() }
     JetnewsTheme {
@@ -87,6 +87,8 @@ fun Home() {
     }
 }
 
+// NOTE Dark theme 적용을 위해서는 primary 아닌 primarySurface를 사용할 것
+// 텍스트의 스타일 적용에도 Theme의 typograhpy를 경유해 사용할 것
 @Composable
 private fun AppBar() {
     TopAppBar(
@@ -98,9 +100,11 @@ private fun AppBar() {
             )
         },
         title = {
-            Text(text = stringResource(R.string.app_title))
+            Text(
+                text = stringResource(R.string.app_title)
+            )
         },
-        backgroundColor = MaterialTheme.colors.primary
+        backgroundColor = MaterialTheme.colors.primarySurface
     )
 }
 
@@ -109,14 +113,20 @@ fun Header(
     text: String,
     modifier: Modifier = Modifier
 ) {
-    Text(
-        text = text,
+    Surface(
+        color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f),
+        contentColor = MaterialTheme.colors.primary,
         modifier = modifier
-            .fillMaxWidth()
-            .background(Color.LightGray)
-            .semantics { heading() }
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    )
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.subtitle2,
+            modifier = modifier
+                .fillMaxWidth()
+                .semantics { heading() }
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+    }
 }
 
 @Composable
@@ -162,6 +172,11 @@ private fun PostMetadata(
 ) {
     val divider = "  •  "
     val tagDivider = "  "
+    val tagStyle = MaterialTheme.typography.overline.toSpanStyle().copy(
+        background = MaterialTheme.colors.primary.copy(alpha = 0.1f)
+    )
+
+    // NOTE : AnnotatedString으로 다양한 style을 가진 형태로 사용이 가능
     val text = buildAnnotatedString {
         append(post.metadata.date)
         append(divider)
@@ -171,9 +186,14 @@ private fun PostMetadata(
             if (index != 0) {
                 append(tagDivider)
             }
-            append(" ${tag.uppercase(Locale.getDefault())} ")
+//            append(" ${tag.uppercase(Locale.getDefault())} ")
+
+            withStyle(tagStyle) {
+                append(" ${tag.uppercase()} ")
+            }
         }
     }
+
     Text(
         text = text,
         modifier = modifier
@@ -227,4 +247,21 @@ private fun FeaturedPostPreview() {
 @Composable
 private fun HomePreview() {
     Home()
+}
+
+@Preview("Featured Post • Dark")
+@Composable
+private fun FeaturedPostDarkPreview() {
+    val post = remember { PostRepo.getFeaturedPost() }
+    com.codelab.theming.ui.finish.theme.JetnewsTheme(darkTheme = true) {
+        FeaturedPost(post = post)
+    }
+}
+
+@Preview("ColorPreview")
+@Composable
+private fun ColorPreview() {
+    Surface(color = MaterialTheme.colors.primary) {
+        Text(text = "hello")
+    }
 }
