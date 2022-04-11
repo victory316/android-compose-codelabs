@@ -27,13 +27,16 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -213,6 +216,7 @@ fun PostItem(
         icon = {
             Image(
                 painter = painterResource(post.imageThumbId),
+                modifier = Modifier.clip(shape = MaterialTheme.shapes.small),
                 contentDescription = null
             )
         },
@@ -265,3 +269,26 @@ private fun ColorPreview() {
         Text(text = "hello")
     }
 }
+
+//@Composable
+//fun FilledTextField(
+//    // other parameters
+//    shape: Shape = MaterialTheme.shapes.small.copy(
+//        bottomStart = ZeroCornerSize, // overrides small theme style
+//        bottomEnd = ZeroCornerSize // overrides small theme style
+//    )
+//) {
+//
+//}
+
+// 별도의 커스텀 버튼을 가져가면서 테마의 영향을 주지 않고자 한다면 아래와 같이 선언해 사용할 것
+//@Composable
+//fun AcmeButton(
+//    // expose Button params consumers should be able to change
+//) {
+//    val acmeButtonShape: Shape = ...
+//    Button(
+//        shape = acmeButtonShape,
+//        // other params
+//    )
+//}
